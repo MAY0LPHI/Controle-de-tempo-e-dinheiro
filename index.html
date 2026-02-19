@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>QuantoCusta</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── Toast de lembretes ──────────────────────────────── -->
+  <div id="lembrete-toast"></div>
+
+  <!-- ── Confetti container ─────────────────────────────── -->
+  <div id="confetti-container"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       TELA: Setup de perfil
+       ══════════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-setup">
+    <div class="setup-logo">
+      <!-- Ícone cifrão em SVG -->
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="32" fill="#22C55E"/>
+        <text x="32" y="44" text-anchor="middle" font-size="36" font-weight="800" fill="#FFFFFF" font-family="Inter, system-ui, sans-serif">$</text>
+      </svg>
+      <h1>QuantoCusta</h1>
+      <p>Economia consciente no seu bolso</p>
+    </div>
+
+    <div class="setup-card">
+      <form id="setup-form" novalidate>
+        <div class="form-group">
+          <label for="setup-salario">Salário mensal líquido (R$)</label>
+          <input
+            type="number"
+            id="setup-salario"
+            inputmode="decimal"
+            placeholder="ex: 3500"
+            min="0.01"
+            step="0.01"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="setup-horas">Horas trabalhadas por mês</label>
+          <input
+            type="number"
+            id="setup-horas"
+            inputmode="decimal"
+            placeholder="ex: 160"
+            min="1"
+            step="1"
+            required
+          />
+        </div>
+        <p class="error-msg" id="setup-error"></p>
+        <button type="submit" class="btn-primary">Começar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       TELA: Home — Calculadora
+       ══════════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-home">
+    <div class="calc-header">
+      <h2>Quanto custa?</h2>
+    </div>
+
+    <div id="calc-display" class="calc-display">R$0</div>
+
+    <!-- Teclado numérico 3×4 -->
+    <div class="keypad">
+      <button class="key-btn" data-key="1">1</button>
+      <button class="key-btn" data-key="2">2</button>
+      <button class="key-btn" data-key="3">3</button>
+      <button class="key-btn" data-key="4">4</button>
+      <button class="key-btn" data-key="5">5</button>
+      <button class="key-btn" data-key="6">6</button>
+      <button class="key-btn" data-key="7">7</button>
+      <button class="key-btn" data-key="8">8</button>
+      <button class="key-btn" data-key="9">9</button>
+      <button class="key-btn" data-key=".">.</button>
+      <button class="key-btn" data-key="0">0</button>
+      <button class="key-btn key-back" data-key="back">
+        <!-- Backspace icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+          <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
+          <line x1="18" y1="9" x2="13" y2="14"/>
+          <line x1="13" y1="9" x2="18" y2="14"/>
+        </svg>
+      </button>
+    </div>
+
+    <button class="btn-outline-green" id="calc-btn">Calcular</button>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       TELA: Economias / Dashboard
+       ══════════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-savings">
+    <div class="savings-hero">
+      <!-- Cifrão estilizado -->
+      <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="28" cy="28" r="28" fill="#22C55E" opacity="0.15"/>
+        <circle cx="28" cy="28" r="20" fill="#22C55E" opacity="0.25"/>
+        <text x="28" y="38" text-anchor="middle" font-size="24" font-weight="800" fill="#22C55E" font-family="Inter, system-ui, sans-serif">$</text>
+      </svg>
+      <h2>Suas economias</h2>
+      <div id="savings-total" class="savings-total">R$0,00</div>
+      <div id="savings-horas" class="savings-horas">0h · Tempo de trabalho</div>
+    </div>
+
+    <!-- Desejos em Quarentena -->
+    <div>
+      <p class="section-title">Desejos em Quarentena</p>
+      <div id="quarentena-lista"></div>
+    </div>
+
+    <!-- Desafio dos 100 Envelopes -->
+    <div class="envelopes-section">
+      <div class="envelope-header">
+        <div>
+          <p class="section-title" style="margin-bottom:0">Desafio dos 100 Envelopes</p>
+          <p class="envelope-total-label">Total acumulado</p>
+        </div>
+        <div style="text-align:right">
+          <p id="envelope-total" class="envelope-total-value">R$0,00</p>
+          <p id="envelope-count" class="envelope-count">0/100</p>
+        </div>
+      </div>
+      <div id="envelope-grid"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       TELA: Perfil
+       ══════════════════════════════════════════════════════ -->
+  <section class="screen" id="screen-profile">
+    <div class="profile-hero">
+      <div class="profile-avatar">
+        <!-- Ícone pessoa -->
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="14" r="7" fill="#9CA3AF"/>
+          <path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" fill="#9CA3AF"/>
+        </svg>
+      </div>
+      <h2>Meu Perfil</h2>
+    </div>
+
+    <!-- Dados do perfil -->
+    <div class="profile-card">
+      <div class="profile-row">
+        <span class="profile-row-label">Salário mensal</span>
+        <span class="profile-row-value" id="profile-salario">—</span>
+      </div>
+      <div class="profile-row">
+        <span class="profile-row-label">Horas / mês</span>
+        <span class="profile-row-value" id="profile-horas">—</span>
+      </div>
+      <div class="profile-row">
+        <span class="profile-row-label">Valor da hora</span>
+        <span class="profile-row-value" id="profile-valor-hora">—</span>
+      </div>
+    </div>
+
+    <button class="btn-outline" id="profile-edit-btn" style="width:100%">Editar perfil</button>
+
+    <!-- Estatísticas -->
+    <p class="section-title">Estatísticas</p>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div id="profile-total-eco" class="stat-value">R$0</div>
+        <div class="stat-label">Total economizado</div>
+      </div>
+      <div class="stat-card">
+        <div id="profile-quarentena-count" class="stat-value">0</div>
+        <div class="stat-label">Em quarentena</div>
+      </div>
+      <div class="stat-card">
+        <div id="profile-envelopes" class="stat-value">0/100</div>
+        <div class="stat-label">Envelopes</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       BOTTOM NAV
+       ══════════════════════════════════════════════════════ -->
+  <nav class="bottom-nav">
+    <!-- Carteira / Economias -->
+    <button class="nav-btn" data-screen="savings" aria-label="Economias">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+      </svg>
+      Carteira
+    </button>
+
+    <!-- Calcular (central maior) -->
+    <button class="nav-btn-center nav-btn" data-screen="home" aria-label="Calcular">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+
+    <!-- Perfil -->
+    <button class="nav-btn" data-screen="profile" aria-label="Perfil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Perfil
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL: Vale a pena?
+       ══════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-vale-pena" role="dialog" aria-modal="true" aria-labelledby="vp-title">
+    <div class="modal-card">
+      <div class="modal-handle"></div>
+      <button class="modal-close" aria-label="Fechar">×</button>
+      <h2 class="modal-title" id="vp-title">Vale a pena?</h2>
+
+      <div class="info-cards">
+        <div class="info-card">
+          <p class="info-card-label">Tempo de trabalho</p>
+          <p id="vp-tempo" class="info-card-value">—</p>
+        </div>
+        <div class="info-card">
+          <p class="info-card-label">Se investido (10 anos)</p>
+          <p id="vp-investido" class="info-card-value green">—</p>
+        </div>
+      </div>
+
+      <p id="vp-confirm-text" class="confirm-text"></p>
+
+      <div class="modal-actions">
+        <button id="vp-no-btn" class="btn-black">Não comprar</button>
+        <button id="vp-buy-btn" class="btn-green">Comprar</button>
+        <div id="vp-buy-confirm" class="buy-confirm-actions">
+          <button id="vp-buy-yes" class="btn-green">Sim, comprar</button>
+          <button id="vp-buy-no" class="btn-outline">Cancelar</button>
+        </div>
+        <button id="vp-unsure-btn" class="btn-outline">Não tenho certeza</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL: Ainda em dúvida?
+       ══════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-duvida" role="dialog" aria-modal="true" aria-labelledby="duvida-title">
+    <div class="modal-card">
+      <div class="modal-handle"></div>
+      <button class="modal-close" aria-label="Fechar">×</button>
+      <h2 class="modal-title" id="duvida-title">Ainda em dúvida?</h2>
+
+      <div class="info-cards">
+        <div class="info-card">
+          <p class="info-card-label">Tempo de trabalho</p>
+          <p id="duvida-tempo" class="info-card-value">—</p>
+        </div>
+        <div class="info-card">
+          <p class="info-card-label">Quanto custa?</p>
+          <p id="duvida-valor" class="info-card-value green">—</p>
+        </div>
+      </div>
+
+      <!-- Nome do item -->
+      <label class="field-label" for="duvida-nome">O que é esse item?</label>
+      <input
+        type="text"
+        id="duvida-nome"
+        class="field-input"
+        placeholder="ex: Sofá novo para sala"
+        maxlength="80"
+      />
+
+      <!-- Categoria -->
+      <span class="field-label">Categoria</span>
+      <div class="cat-buttons">
+        <button class="cat-btn" data-cat="Roupas">👕 Roupas</button>
+        <button class="cat-btn" data-cat="Comida">🍔 Comida</button>
+        <button class="cat-btn" data-cat="Eletrônicos">💻 Eletrônicos</button>
+        <button class="cat-btn" data-cat="Casa">🏠 Casa</button>
+        <button class="cat-btn" data-cat="Lazer">🎮 Lazer</button>
+      </div>
+
+      <!-- Lembrete -->
+      <span class="field-label">Me lembre em</span>
+      <div class="reminder-buttons">
+        <button class="reminder-btn" data-ms="3600000">1 hora</button>
+        <button class="reminder-btn" data-ms="21600000">6 horas</button>
+        <button class="reminder-btn active" data-ms="86400000">24 horas</button>
+        <button class="reminder-btn" data-ms="172800000">48 horas</button>
+        <button class="reminder-btn" data-ms="604800000">1 semana</button>
+      </div>
+
+      <button id="definir-btn" class="btn-primary mt-16">Definir lembrete</button>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<script src="js/storage.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/envelopes.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
