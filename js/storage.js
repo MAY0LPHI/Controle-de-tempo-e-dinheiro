@@ -12,6 +12,7 @@ function storageGet(key) {
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : null;
   } catch (e) {
+    console.error('[storage] Erro ao ler "' + key + '":', e);
     return null;
   }
 }
@@ -20,7 +21,7 @@ function storageSet(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
-    // ignore storage errors
+    console.error('[storage] Erro ao salvar "' + key + '":', e);
   }
 }
 

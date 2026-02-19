@@ -11,9 +11,9 @@ function calcHorasGastas(preco, valorHora) {
 }
 
 function calcInvestimento(preco, anos, taxa) {
-  const a = anos !== undefined ? anos : 10;
-  const t = taxa !== undefined ? taxa : 0.10;
-  return preco * Math.pow(1 + t, a);
+  const years = anos !== undefined ? anos : 10;
+  const rate = taxa !== undefined ? taxa : 0.10;
+  return preco * Math.pow(1 + rate, years);
 }
 
 function formatBRL(v) {
@@ -27,8 +27,8 @@ function formatHoras(horas) {
   }
   const h = Math.floor(horas);
   const m = Math.floor((horas - h) * 60);
-  const s = Math.round(((horas - h) * 60 - m) * 60);
-  if (m === 0 && s === 0) return h + 'h';
-  if (s === 0) return h + 'h ' + m + 'm';
-  return h + 'h ' + m + 'm ' + s + 's';
+  const segundos = Math.round(((horas - h) * 60 - m) * 60);
+  if (m === 0 && segundos === 0) return h + 'h';
+  if (segundos === 0) return h + 'h ' + m + 'm';
+  return h + 'h ' + m + 'm ' + segundos + 's';
 }

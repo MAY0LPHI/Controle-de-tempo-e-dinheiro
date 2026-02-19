@@ -4,6 +4,9 @@
   'use strict';
 
   // ─── Estado ───────────────────────────────────────────────────────────────
+  const MAX_INPUT_LENGTH = 12;
+  const CONFETTI_COLORS = ['#22C55E', '#16A34A', '#4ADE80', '#FACC15', '#34D399'];
+
   let currentScreen = 'home';
   let currentValue = '';
   let selectedReminder = 24 * 60 * 60 * 1000; // 24h default em ms
@@ -111,7 +114,7 @@
       if (currentValue === '0') currentValue = k;
       else currentValue += k;
       // limitar tamanho
-      if (currentValue.length > 12) currentValue = currentValue.slice(0, 12);
+      if (currentValue.length > MAX_INPUT_LENGTH) currentValue = currentValue.slice(0, MAX_INPUT_LENGTH);
     }
     updateDisplay();
   }
@@ -170,6 +173,7 @@
       const isDefault = b.dataset.ms === String(24 * 60 * 60 * 1000);
       b.classList.toggle('active', isDefault);
     });
+    updateDefinirBtn();
 
     closeModal('modal-vale-pena');
     openModal('modal-duvida');
@@ -295,7 +299,7 @@
   function updateDefinirBtn() {
     const btn = document.getElementById('definir-btn');
     if (!btn) return;
-    btn.disabled = !selectedReminder;
+    btn.disabled = !selectedCategory || !selectedReminder;
   }
 
   // ─── Economias / Dashboard ────────────────────────────────────────────────
@@ -469,7 +473,7 @@
     const container = document.getElementById('confetti-container');
     if (!container) return;
     container.innerHTML = '';
-    const colors = ['#22C55E', '#16A34A', '#4ADE80', '#FACC15', '#34D399'];
+    const colors = CONFETTI_COLORS;
     for (let i = 0; i < 40; i++) {
       const dot = document.createElement('div');
       dot.className = 'confetti-dot';
