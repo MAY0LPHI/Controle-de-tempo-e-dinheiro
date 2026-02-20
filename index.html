@@ -114,17 +114,54 @@
             </div>
         </div>
 
-        <!-- Cooldown Picker Modal -->
-        <div id="wait-modal" class="hidden fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
-            <div class="bg-white w-full rounded-[40px] p-8 animate-fade-in shadow-2xl">
-                <h3 class="text-2xl font-extrabold mb-8 text-center tracking-tight">Tempo de espera</h3>
-                <div class="grid grid-cols-2 gap-3 mb-8">
-                    <button class="wait-option border-2 border-gray-100 rounded-[22px] py-5 font-bold transition-all" data-hours="1">1 Hora</button>
-                    <button class="wait-option border-2 border-gray-100 rounded-[22px] py-5 font-bold transition-all" data-hours="24">24 Horas</button>
-                    <button class="wait-option border-2 border-gray-100 rounded-[22px] py-5 font-bold transition-all" data-hours="48">2 Dias</button>
-                    <button class="wait-option border-2 border-gray-100 rounded-[22px] py-5 font-bold transition-all" data-hours="168">7 Dias</button>
+        <!-- Cooldown Picker Modal (Reflection Modal) -->
+        <div id="wait-modal" class="hidden fixed inset-0 z-[70] bg-black/60 backdrop-blur-md flex items-end">
+            <div class="bg-white w-full rounded-t-[48px] p-8 pb-12 animate-slide-up shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="w-12 h-1.5 bg-gray-100 rounded-full mx-auto mb-8"></div>
+                
+                <h3 class="text-2xl font-extrabold mb-6 text-center tracking-tight">Modal de Reflexão</h3>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">O que você quer comprar?</label>
+                        <input type="text" id="wait-description" placeholder="Ex: Tênis Novo, Jantar..." class="w-full text-xl font-bold border-b-2 border-gray-100 py-2 outline-none focus:border-[#39D353] transition-colors">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Categoria</label>
+                        <div class="flex flex-wrap gap-2" id="wait-category-group">
+                            <button class="cat-btn" data-cat="Roupas" data-emoji="👕">👕 Roupas</button>
+                            <button class="cat-btn" data-cat="Comida" data-emoji="🍔">🍔 Comida</button>
+                            <button class="cat-btn" data-cat="Eletrônicos" data-emoji="📱">📱 Eletrônicos</button>
+                            <button class="cat-btn" data-cat="Casa" data-emoji="🏠">🏠 Casa</button>
+                            <button class="cat-btn" data-cat="Lazer" data-emoji="🏖️">🏖️ Lazer</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center px-1 mb-2">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest">Medidor de Impulso</label>
+                            <span id="impulse-label" class="text-[10px] font-black text-[#39D353] uppercase bg-[#39D353]/10 px-2 py-0.5 rounded">Quer 1 / Precisa 5</span>
+                        </div>
+                        <input type="range" id="wait-impulse" min="1" max="5" step="1" value="3" class="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-black">
+                        <div class="flex justify-between text-[8px] font-bold text-gray-300 mt-2 px-1">
+                            <span>APENAS QUERO</span>
+                            <span>PRECISO MUITO</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Tempo de espera</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button class="wait-option-small" data-hours="1">1h</button>
+                            <button class="wait-option-small selected" data-hours="24">24h</button>
+                            <button class="wait-option-small" data-hours="48">2d</button>
+                            <button class="wait-option-small" data-hours="168">7d</button>
+                        </div>
+                    </div>
+
+                    <button id="final-confirm-wait" class="w-full py-5 bg-[#39D353] text-black rounded-[26px] font-extrabold shadow-lg shadow-[#39D353]/30 active:scale-[0.97] transition-transform mt-4">Pausar para Pensar</button>
                 </div>
-                <button id="final-confirm-wait" class="w-full py-5 bg-[#39D353] text-black rounded-[26px] font-extrabold shadow-lg shadow-[#39D353]/30 active:scale-[0.97] transition-transform">Confirmar Pausa</button>
             </div>
         </div>
 

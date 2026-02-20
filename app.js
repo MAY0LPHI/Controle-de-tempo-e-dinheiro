@@ -15,6 +15,7 @@ const DOM = {
 
 let currentInput = "0";
 let selectedWaitHours = 24;
+let selectedCategory = { name: 'Lazer', emoji: '🏖️' };
 let activeInterval = null;
 
 function init() {
@@ -43,7 +44,7 @@ function showToast(message, type = 'success') {
 }
 
 function requestNotificationPermission() {
-    if ("Notification" in window) {
+    if ("Notification" in window && Notification.permission !== "granted") {
         Notification.requestPermission();
     }
 }
@@ -122,7 +123,6 @@ function setupConfigLogic() {
         reader.onload = (event) => {
             try {
                 const importedData = JSON.parse(event.target.result);
-
                 if (importedData.settings && importedData.envelopes) {
                     Storage.save(importedData);
                     window.location.reload();
@@ -182,7 +182,7 @@ function setupCalcKeypad() {
 
 function setupHistoryLogic() {
     document.querySelectorAll('.btn-delete-decision').forEach(btn => {
-        btn.onclick = (e) => {
+        btn.onclick = () => {
             const id = parseInt(btn.dataset.id);
             const newList = AppState.decisions.filter(d => d.id !== id);
             updateState('decisions', newList);
@@ -191,7 +191,7 @@ function setupHistoryLogic() {
     });
 
     document.querySelectorAll('.btn-delete-waiting').forEach(btn => {
-        btn.onclick = (e) => {
+        btn.onclick = () => {
             const id = parseInt(btn.dataset.id);
             const newList = AppState.waitingItems.filter(i => i.id !== id);
             updateState('waitingItems', newList);
@@ -207,6 +207,14 @@ function setupHistoryLogic() {
                 currentInput = item.price.toString();
                 const hours = (item.price / AppState.settings.hourlyRate).toFixed(1);
                 DOM.modalHours.innerText = hours;
+                
+
+                window._pendingWaitContext = {
+                    description: item.description,
+                    category: item.category,
+                    impulse: item.impulse
+                };
+
                 DOM.decisionModal.classList.remove('hidden');
                 
                 const newList = AppState.waitingItems.filter(i => i.id !== id);
@@ -220,18 +228,27 @@ function setupHistoryLogic() {
             const now = Date.now();
             let changed = false;
             AppState.waitingItems.forEach(item => {
-                if (item.targetTime <= now && !item.notified) {
-                    showToast(`Tempo de espera finalizado para R$ ${item.price}`, 'wait');
-                    item.notified = true;
-                    changed = true;
+                const el = document.getElementById(`timer-${item.id}`);
+                if (el) {
+                    const diff = item.targetTime - now;
+                    if (diff <= 0) {
+                        el.innerText = "PRONTO!";
+                        el.classList.add('text-[#39D353]');
+                        if (!item.notified) {
+                            showToast(`Hora de decidir: ${item.description || 'Item'}`, 'wait');
+                            item.notified = true;
+                            changed = true;
+                        }
+                    } else {
+                        const hours = Math.floor(diff / (1000 * 60 * 60));
+                        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        el.innerText = hours >= 24 ? `${Math.floor(hours/24)}d ${hours%24}h` : `${hours}h ${mins}m`;
+                    }
                 }
             });
-            if (changed) {
-                updateState('waitingItems', AppState.waitingItems);
-                render('history');
-            }
+            if (changed) updateState('waitingItems', AppState.waitingItems);
         }
-    }, 15000);
+    }, 1000);
 }
 
 function setupEnvelopeLogic() {
@@ -252,9 +269,7 @@ function setupEnvelopeLogic() {
         luckyEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         luckyEl.classList.add('lucky-glow');
         
-        setTimeout(() => {
-            luckyEl.classList.remove('lucky-glow');
-        }, 3000);
+        setTimeout(() => luckyEl.classList.remove('lucky-glow'), 3000);
     };
 
     document.getElementById('btn-open-challenge-settings').onclick = () => {
@@ -272,21 +287,16 @@ function toggleEnvelope(idx) {
     
     if (!wasFilled) {
         showToast(`Economia de R$ ${AppState.challengeSettings.envelopeValues[idx]} adicionada!`, 'success');
-        render('envelopes');
-    } else {
-        render('envelopes');
     }
+    render('envelopes');
 }
 
 function recomputeChallenge(target, strategy) {
     let newValues = [];
     if (strategy === 'more_envelopes') {
-        let n = 1;
-        let sum = 0;
+        let n = 1; let sum = 0;
         while (sum < target) {
-            sum += n;
-            newValues.push(n);
-            n++;
+            sum += n; newValues.push(n); n++;
         }
     } else {
         const baseSum = 5050; 
@@ -294,11 +304,7 @@ function recomputeChallenge(target, strategy) {
         newValues = Array.from({ length: 100 }, (_, i) => Math.round((i + 1) * scale));
     }
 
-    updateState('challengeSettings', {
-        targetGoal: target,
-        strategy: strategy,
-        envelopeValues: newValues
-    });
+    updateState('challengeSettings', { targetGoal: target, strategy: strategy, envelopeValues: newValues });
     updateState('envelopes', Array(newValues.length).fill(false));
     
     DOM.challengeModal.classList.add('hidden');
@@ -316,11 +322,8 @@ function setupGlobalListeners() {
         if (sal > 0 && hrs > 0) {
             updateState('settings', { salary: sal, hours: hrs, hourlyRate: sal / hrs });
             DOM.setup.classList.add('hidden');
-            if (!AppState.onboarded) {
-                DOM.tutorial.classList.remove('hidden');
-            } else {
-                render('calc');
-            }
+            if (!AppState.onboarded) DOM.tutorial.classList.remove('hidden');
+            else render('calc');
         }
     };
 
@@ -333,9 +336,7 @@ function setupGlobalListeners() {
     document.getElementById('btn-save-challenge').onclick = () => {
         const target = parseFloat(document.getElementById('challenge-goal-input').value);
         const strategy = document.getElementById('challenge-strategy-select').value;
-        if (target > 0) {
-            recomputeChallenge(target, strategy);
-        }
+        if (target > 0) recomputeChallenge(target, strategy);
     };
 
     document.getElementById('btn-confirm-buy').onclick = () => recordDecision('buy');
@@ -345,30 +346,51 @@ function setupGlobalListeners() {
         DOM.waitModal.classList.remove('hidden');
     };
 
-    document.querySelectorAll('.wait-option').forEach(opt => {
+
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedCategory = { name: btn.dataset.cat, emoji: btn.dataset.emoji };
+        };
+    });
+
+    document.querySelector('.cat-btn[data-cat="Lazer"]').classList.add('selected');
+
+
+    document.querySelectorAll('.wait-option-small').forEach(opt => {
         opt.onclick = () => {
-            document.querySelectorAll('.wait-option').forEach(o => {
-                o.classList.remove('bg-black', 'text-white', 'border-black');
-                o.classList.add('border-gray-100');
-            });
-            opt.classList.add('bg-black', 'text-white', 'border-black');
-            opt.classList.remove('border-gray-100');
+            document.querySelectorAll('.wait-option-small').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
             selectedWaitHours = parseInt(opt.dataset.hours);
         };
     });
 
+
+    const impulseSlider = document.getElementById('wait-impulse');
+    const impulseLabel = document.getElementById('impulse-label');
+    impulseSlider.oninput = (e) => {
+        impulseLabel.innerText = `Quer ${6 - e.target.value} / Precisa ${e.target.value}`;
+    };
+
     document.getElementById('final-confirm-wait').onclick = () => {
         const price = parseFloat(currentInput);
+        const desc = document.getElementById('wait-description').value || 'Novo Item';
+        const impulse = document.getElementById('wait-impulse').value;
+        
         const waitItem = {
             id: Date.now(),
             price: price,
+            description: desc,
+            category: selectedCategory,
+            impulse: impulse,
             hours: (price / AppState.settings.hourlyRate).toFixed(1),
             targetTime: Date.now() + (selectedWaitHours * 60 * 60 * 1000),
             notified: false
         };
         updateState('waitingItems', [...AppState.waitingItems, waitItem]);
         DOM.waitModal.classList.add('hidden');
-        showToast("Lembrete ativado. O tempo está correndo!", "wait");
+        showToast("Reflexão iniciada!", "wait");
         render('history');
     };
 
@@ -381,18 +403,24 @@ function setupGlobalListeners() {
 
 function recordDecision(action) {
     const price = parseFloat(currentInput);
+    const context = window._pendingWaitContext || {};
+    
     const decision = {
         id: Date.now(),
         price: price,
         hours: (price / AppState.settings.hourlyRate).toFixed(1),
+        description: context.description || 'Compra Manual',
+        category: context.category || { emoji: '💰', name: 'Geral' },
+        impulse: context.impulse || 3,
         action: action,
         timestamp: Date.now()
     };
     
     updateState('decisions', [...AppState.decisions, decision]);
-    
+    window._pendingWaitContext = null;
+
     if (action === 'skip') {
-        showToast(`Boa escolha! Você economizou R$ ${price.toLocaleString('pt-BR')}`, 'success');
+        showToast(`Economizou R$ ${price.toLocaleString('pt-BR')}`, 'success');
     }
 
     DOM.decisionModal.classList.add('hidden');

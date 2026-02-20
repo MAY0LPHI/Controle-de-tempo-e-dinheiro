@@ -13,11 +13,11 @@ export const Views = {
 
         const formatTimeLeft = (target) => {
             const diff = target - Date.now();
-            if (diff <= 0) return "Pronto para decidir!";
+            if (diff <= 0) return "PRONTO!";
             const hours = Math.floor(diff / (1000 * 60 * 60));
             const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            if (hours >= 24) return `${Math.floor(hours/24)}d ${hours%24}h restantes`;
-            return `${hours}h ${mins}m restantes`;
+            if (hours >= 24) return `${Math.floor(hours/24)}d ${hours%24}h`;
+            return `${hours}h ${mins}m`;
         };
 
         return `
@@ -48,29 +48,56 @@ export const Views = {
             <div class="mb-10" data-waiting-section>
                 <div class="flex justify-between items-center mb-4 px-1">
                     <h3 class="font-extrabold text-lg flex items-center gap-2">
-                        Em Espera
-                        <span class="bg-[#39D353] text-black text-[10px] px-2.5 py-1 rounded-full font-black">${state.waitingItems.length}</span>
+                        Ainda tem dúvidas?
+                        <span class="bg-black text-white text-[10px] px-2.5 py-1 rounded-full font-black">${state.waitingItems.length}</span>
                     </h3>
                 </div>
                 <div class="space-y-4">
                     ${state.waitingItems.map(item => `
-                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-[24px] border border-gray-100 relative overflow-hidden transition-all hover:border-gray-200">
-                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
-                                <i data-lucide="clock" class="w-5 h-5 ${item.targetTime <= Date.now() ? 'text-[#39D353]' : 'text-gray-300'}"></i>
+                        <div class="flex flex-col gap-3 p-5 bg-white rounded-[32px] border border-gray-100 shadow-sm relative overflow-hidden transition-all hover:border-gray-300">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-xl shadow-inner">
+                                        ${item.category?.emoji || '⏳'}
+                                    </div>
+                                    <div>
+                                        <p class="font-extrabold text-sm text-gray-800 leading-none mb-1">${item.description || 'Novo Item'}</p>
+                                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">${item.category?.name || 'Geral'}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p id="timer-${item.id}" class="text-xs font-black ${item.targetTime <= Date.now() ? 'text-[#39D353]' : 'text-gray-800'}">${formatTimeLeft(item.targetTime)}</p>
+                                    <p class="text-[8px] font-bold text-gray-400 uppercase">Contagem</p>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <p class="font-bold text-sm">R$ ${item.price.toLocaleString('pt-BR')}</p>
-                                <p class="text-[10px] ${item.targetTime <= Date.now() ? 'text-[#39D353]' : 'text-gray-400'} font-bold uppercase">
-                                    ${formatTimeLeft(item.targetTime)}
-                                </p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button data-id="${item.id}" class="btn-decide-waiting p-2 bg-black text-white rounded-xl active:scale-90 transition-transform">
-                                    <i data-lucide="check" class="w-4 h-4"></i>
-                                </button>
-                                <button data-id="${item.id}" class="btn-delete-waiting p-2 bg-gray-200/50 text-gray-400 rounded-xl active:scale-90 transition-all">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
+
+                            <div class="h-[1px] bg-gray-50 w-full"></div>
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex gap-4">
+                                    <div>
+                                        <p class="text-[8px] font-bold text-gray-400 uppercase mb-0.5">Custo</p>
+                                        <p class="text-xs font-black">R$ ${item.price.toLocaleString('pt-BR')}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[8px] font-bold text-gray-400 uppercase mb-0.5">Horas Vida</p>
+                                        <p class="text-xs font-black text-[#39D353]">${item.hours}h</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[8px] font-bold text-gray-400 uppercase mb-0.5">Impulso</p>
+                                        <div class="flex gap-0.5">
+                                            ${[1, 2, 3, 4, 5].map(i => `<div class="w-1 h-2.5 rounded-full ${i <= item.impulse ? 'bg-black' : 'bg-gray-100'}"></div>`).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button data-id="${item.id}" class="btn-decide-waiting w-10 h-10 bg-black text-white rounded-2xl flex items-center justify-center active:scale-90 transition-transform">
+                                        <i data-lucide="check" class="w-4 h-4"></i>
+                                    </button>
+                                    <button data-id="${item.id}" class="btn-delete-waiting w-10 h-10 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center active:scale-90 transition-transform">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `).join('')}
@@ -80,22 +107,23 @@ export const Views = {
 
             <div class="space-y-6">
                 <div class="flex justify-between items-center px-1">
-                    <h3 class="font-extrabold text-lg">Histórico</h3>
-                    <button class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Atividade Recente</button>
+                    <h3 class="font-extrabold text-lg">Histórico de Decisões</h3>
+                    <button class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Atividade</button>
                 </div>
                 
                 ${state.decisions.length ? state.decisions.slice().reverse().map(d => `
                     <div class="flex items-center gap-4 group">
-                        <div class="w-12 h-12 rounded-2xl ${d.action === 'skip' ? 'bg-[#39D353]/10 text-[#39D353]' : 'bg-gray-100 text-gray-400'} flex items-center justify-center shrink-0">
-                            <i data-lucide="${d.action === 'skip' ? 'shield-check' : 'shopping-bag'}" class="w-5 h-5"></i>
+                        <div class="w-12 h-12 rounded-2xl ${d.action === 'skip' ? 'bg-[#39D353]/10 text-[#39D353]' : 'bg-gray-100 text-gray-400'} flex items-center justify-center shrink-0 text-xl">
+                            ${d.category?.emoji || (d.action === 'skip' ? '✅' : '🛍️')}
                         </div>
-                        <div class="flex-1">
-                            <p class="font-bold text-sm">R$ ${d.price.toLocaleString('pt-BR')}</p>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase">${new Date(d.timestamp).toLocaleDateString('pt-BR')}</p>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-sm truncate">${d.description || `R$ ${d.price.toLocaleString('pt-BR')}`}</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase">${new Date(d.timestamp).toLocaleDateString('pt-BR')} • ${d.category?.name || 'Geral'}</p>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="text-right">
-                                <p class="text-[10px] font-extrabold ${d.action === 'skip' ? 'text-[#39D353]' : 'text-gray-400'} uppercase tracking-tighter">
+                                <p class="text-sm font-black text-gray-800">R$ ${d.price.toLocaleString('pt-BR')}</p>
+                                <p class="text-[9px] font-extrabold ${d.action === 'skip' ? 'text-[#39D353]' : 'text-gray-400'} uppercase tracking-tighter">
                                     ${d.action === 'skip' ? 'Poupado' : 'Comprado'}
                                 </p>
                             </div>
@@ -106,7 +134,7 @@ export const Views = {
                     </div>
                 `).join('') : `
                     <div class="text-center py-12 bg-gray-50 rounded-[32px] border-2 border-dashed border-gray-100">
-                        <p class="text-gray-400 font-medium text-sm">Sua jornada começa aqui.</p>
+                        <p class="text-gray-400 font-medium text-sm">Nenhuma decisão registrada ainda.</p>
                     </div>
                 `}
             </div>
@@ -239,19 +267,19 @@ export const Views = {
             </div>
 
             <div class="space-y-6">
-                <!-- Profile Section -->
                 <div class="p-8 bg-black rounded-[40px] shadow-xl relative overflow-hidden">
                     <div class="absolute -right-8 -top-8 w-32 h-32 bg-[#39D353]/10 rounded-full blur-3xl"></div>
                     
-                    <div class="mb-6 relative z-10\">\n                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Configurações de Ganhos</label>
+                    <div class="mb-6 relative z-10">
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Configurações de Ganhos</label>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="text-[9px] text-gray-400 uppercase font-black">Salário (R$)</label>
-                                <input id="cfg-salary" type="number" value="${state.settings.salary}" class="w-full bg-white/5 border-none outline-none text-white font-bold text-xl py-2 rounded-lg">
+                                <input id="cfg-salary" type="number" value="${state.settings.salary}" class="w-full bg-white/5 border-none outline-none text-white font-bold text-xl py-2 rounded-lg px-2">
                             </div>
                             <div>
                                 <label class="text-[9px] text-gray-400 uppercase font-black">Horas/Mês</label>
-                                <input id="cfg-hours" type="number" value="${state.settings.hours}" class="w-full bg-white/5 border-none outline-none text-white font-bold text-xl py-2 rounded-lg">
+                                <input id="cfg-hours" type="number" value="${state.settings.hours}" class="w-full bg-white/5 border-none outline-none text-white font-bold text-xl py-2 rounded-lg px-2">
                             </div>
                         </div>
                     </div>
@@ -267,7 +295,6 @@ export const Views = {
                     </div>
                 </div>
 
-                <!-- Backup Section -->
                 <div class="space-y-3">
                     <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest px-2 mb-2">Backup de Dados</h3>
                     <div class="grid grid-cols-2 gap-3">
@@ -283,7 +310,6 @@ export const Views = {
                     </div>
                 </div>
 
-                <!-- Danger Zone -->
                 <div class="pt-6">
                     <button id="btn-reset-app" class="w-full py-5 border-2 border-red-50/50 text-red-500 rounded-[28px] font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -293,7 +319,7 @@ export const Views = {
 
                 <div class="text-center pt-8">
                     <p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em] mb-2">CuantoCusta</p>
-                    <p class="text-[10px] text-gray-400 font-medium">Versão 2.1.0 • Dados Locais</p>
+                    <p class="text-[10px] text-gray-400 font-medium">Versão 2.2.0 • Dados Locais</p>
                 </div>
             </div>
         </div>
