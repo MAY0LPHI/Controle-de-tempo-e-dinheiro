@@ -1,0 +1,167 @@
+:root {
+    --neon-green: #39D353;
+}
+
+* {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: #f3f4f6;
+    overscroll-behavior-y: contain;
+}
+
+#main-content {
+    scrollbar-width: none;
+}
+#main-content::-webkit-scrollbar {
+    display: none;
+}
+
+.icon-blob {
+    width: 48px;
+    height: 48px;
+    background: black;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.keypad-btn {
+    height: 72px;
+    border-radius: 24px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+}
+
+.keypad-btn:active {
+    background: #f3f4f6;
+    transform: scale(0.95);
+}
+
+.nav-item.active {
+    color: black !important;
+}
+
+.envelope-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.envelope {
+    aspect-ratio: 1;
+    background: white;
+    border: 1px solid #f3f4f6;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #cbd5e1;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    padding: 2px;
+    overflow: hidden;
+}
+
+.envelope-val-label {
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 1px;
+}
+
+.envelope-val-amount {
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.envelope:active {
+    transform: scale(0.9);
+}
+
+.envelope.filled {
+    background: var(--neon-green);
+    color: black;
+    border-color: transparent;
+    box-shadow: 0 10px 15px -3px rgba(57,211,83,0.3);
+}
+
+.lucky-glow {
+    animation: lucky-pulse 1s infinite alternate;
+    z-index: 50;
+    border: 2px solid black !important;
+}
+
+@keyframes lucky-pulse {
+    from { 
+        box-shadow: 0 0 10px var(--neon-green);
+        transform: scale(1);
+    }
+    to { 
+        box-shadow: 0 0 30px var(--neon-green);
+        transform: scale(1.1);
+    }
+}
+
+.toast-message {
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    background: black;
+    color: white;
+    animation: slide-down 0.4s ease-out;
+}
+
+.toast-message.wait { background: #3b82f6; }
+.toast-message.error { background: #ef4444; }
+
+@keyframes slide-down {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-up {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate-slide-up { animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#cfg-salary, #cfg-hours {
+    padding-left: 12px;
+}
