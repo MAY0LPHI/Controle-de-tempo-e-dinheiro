@@ -113,7 +113,7 @@ export const Views = {
                 
                 ${state.decisions.length ? state.decisions.slice().reverse().map(d => `
                     <div class="flex items-center gap-4 group">
-                        <div class="w-12 h-12 rounded-2xl ${d.action === 'skip' ? 'bg-[#39D353]/10 text-[#39D353]' : 'bg-gray-100 text-gray-400'} flex items-center justify-center shrink-0 text-xl">
+                        <div class="w-12 h-12 rounded-2xl ${d.action === 'skip' ? 'bg-[#39D353]/10 text-[#39D353]' : 'bg-gray-100 text-gray-400'} flex items-center justify-center shrink-0 text-xl shadow-sm">
                             ${d.category?.emoji || (d.action === 'skip' ? '✅' : '🛍️')}
                         </div>
                         <div class="flex-1 min-w-0">
@@ -157,7 +157,7 @@ export const Views = {
                 ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `
                     <button class="keypad-btn bg-white border border-gray-50 shadow-sm" data-val="${n}">${n}</button>
                 `).join('')}
-                <button class="keypad-btn bg-white border border-gray-50 shadow-sm" data-val=".">,</button>
+                <button class="keypad-btn bg-white border border-gray-50 shadow-sm" data-val=",">,</button>
                 <button class="keypad-btn bg-white border border-gray-50 shadow-sm" data-val="0">0</button>
                 <button class="keypad-btn bg-gray-50 text-gray-400" data-val="del">
                     <i data-lucide="delete" class="w-6 h-6"></i>
@@ -227,6 +227,15 @@ export const Views = {
                 </div>
             </div>
 
+            <div class="bg-white rounded-[28px] p-4 mb-6 border border-gray-100 shadow-sm">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Inserir valor e fechar envelopes</p>
+                <div class="flex gap-2">
+                    <input id="env-add-amount" type="number" inputmode="decimal" placeholder="Ex: 100" class="flex-1 bg-gray-50 rounded-2xl px-4 py-3 font-extrabold outline-none" />
+                    <button id="btn-env-add" class="px-4 py-3 bg-black text-white rounded-2xl font-extrabold active:scale-95 transition-transform">OK</button>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-2">Dica: o app vai fechar vários envelopes abertos até somar o valor.</p>
+            </div>
+
             <div class="grid grid-cols-3 gap-3 mb-8">
                 <div class="bg-gray-50 p-4 rounded-[24px] border border-gray-100">
                     <p class="text-[8px] font-bold text-gray-400 uppercase mb-1">Faltam</p>
@@ -275,11 +284,11 @@ export const Views = {
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="text-[9px] text-gray-400 uppercase font-black">Salário (R$)</label>
-                                <input id="cfg-salary" type="number" value="${state.settings.salary}" class="w-full bg-white/5 border-none outline-none text-white font-bold text-xl py-2 rounded-lg px-2">
+                                <input id="cfg-salary" type="number" value="${state.settings.salary}" class="w-full bg-white/5 border-none outline-none text-white font-bold text-xl py-2 rounded-lg px-3">
                             </div>
                             <div>
                                 <label class="text-[9px] text-gray-400 uppercase font-black">Horas/Mês</label>
-                                <input id="cfg-hours" type="number" value="${state.settings.hours}" class="w-full bg-white/5 border-none outline-none text-white font-bold text-xl py-2 rounded-lg px-2">
+                                <input id="cfg-hours" type="number" value="${state.settings.hours}" class="w-full bg-white/5 border-none outline-none text-white font-bold text-xl py-2 rounded-lg px-3">
                             </div>
                         </div>
                     </div>
@@ -302,7 +311,7 @@ export const Views = {
                             <i data-lucide="download" class="text-[#39D353] w-5 h-5"></i>
                             <span class="text-[10px] font-black uppercase">Exportar</span>
                         </button>
-                        <button id="btn-import-trigger" class="flex flex-col items-center gap-2 p-5 bg-white border border-gray-100 rounded-[28px] hover:bg-gray-50 transition-colors shadow-sm relative overflow-hidden">
+                        <button id="btn-import-trigger" class="flex flex-col items-center gap-2 p-5 bg-white border border-gray-100 rounded-[28px] hover:bg-gray-50 transition-colors shadow-sm relative">
                             <i data-lucide="upload" class="text-blue-500 w-5 h-5"></i>
                             <span class="text-[10px] font-black uppercase">Importar</span>
                             <input type="file" id="import-file-input" class="hidden" accept=".json">
