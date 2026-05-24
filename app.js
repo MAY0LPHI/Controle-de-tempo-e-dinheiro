@@ -276,6 +276,80 @@ function setupEnvelopeLogic() {
         DOM.challengeModal.classList.remove('hidden');
         document.getElementById('challenge-goal-input').value = AppState.challengeSettings.targetGoal;
     };
+
+    const btnAdd = document.getElementById('btn-env-add');
+    const inputAdd = document.getElementById('env-add-amount');
+
+    if (btnAdd && inputAdd) {
+        btnAdd.onclick = () => {
+            const amount = parseFloat(inputAdd.value);
+            if (!amount || amount <= 0) return;
+
+            const result = fillEnvelopesByExactAmount(amount);
+
+            if (!result.success) {
+                showToast(`Não foi possível fechar envelopes para completar exatamente R$ ${amount.toLocaleString('pt-BR')}.`, 'error');
+                return;
+            }
+
+            if (result.filledCount > 0) {
+                showToast(`Fechou ${result.filledCount} envelope(s) somando R$ ${result.filledSum.toLocaleString('pt-BR')}`, 'success');
+            }
+
+            inputAdd.value = '';
+            render('envelopes');
+        };
+    }
+}
+
+function fillEnvelopesByExactAmount(amount) {
+    // Regra A: só fecha se conseguir completar EXATAMENTE o valor.
+    const values = AppState.challengeSettings.envelopeValues || [];
+    const filled = [...AppState.envelopes];
+
+    const open = values
+        .map((val, idx) => ({ idx, val: Number(val) || 0 }))
+        .filter(x => !filled[x.idx] && x.val > 0);
+
+    // Trabalhar com centavos para evitar erros de ponto flutuante.
+    const target = Math.round((Number(amount) || 0) * 100);
+
+    // dp[sum] = array de idx usados para chegar exatamente em sum
+    const dp = new Map();
+    dp.set(0, []);
+
+    for (const env of open) {
+        const v = Math.round(env.val * 100);
+        // snapshot para não usar o mesmo envelope duas vezes
+        const entries = Array.from(dp.entries());
+        for (const [sum, combo] of entries) {
+            const next = sum + v;
+            if (next > target) continue;
+            if (dp.has(next)) continue;
+            dp.set(next, [...combo, env.idx]);
+            if (next === target) break;
+        }
+        if (dp.has(target)) break;
+    }
+
+    if (!dp.has(target)) {
+        return { success: false, filledSum: 0, filledCount: 0, indices: [] };
+    }
+
+    const indices = dp.get(target);
+    const newFilled = [...filled];
+    indices.forEach(i => { newFilled[i] = true; });
+
+    updateState('envelopes', newFilled);
+
+    const filledSum = indices.reduce((acc, i) => acc + (Number(values[i]) || 0), 0);
+
+    return {
+        success: true,
+        filledSum,
+        filledCount: indices.length,
+        indices
+    };
 }
 
 function toggleEnvelope(idx) {
@@ -385,7 +459,7 @@ function setupGlobalListeners() {
             category: selectedCategory,
             impulse: impulse,
             hours: (price / AppState.settings.hourlyRate).toFixed(1),
-            targetTime: Date.now() + (selectedWaitHours * 60 * 60 * 1000),
+            targetTime: Date.now() + (selectedWaitHours * 60 * 60 *  1000),
             notified: false
         };
         updateState('waitingItems', [...AppState.waitingItems, waitItem]);
